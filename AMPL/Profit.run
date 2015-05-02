@@ -1,0 +1,23 @@
+#=============================================================
+#AUTHOR: Benoit Sluysmans & Nicolas Stevens, UCL-EPL
+#DATE: 11/04/2015
+#=============================================================
+#MIQP for ELDP: Problem without valve point effect
+
+reset;
+
+#Let's compute the optimal solution p without takking into account 
+# the valve point effect.
+model ELDP_no_valve_point.mod;
+data eldp_s_no_loss_13b.dat;
+
+option solver cplex;
+solve;
+
+# Let's inject this this optimal solution p into the genuine cost
+# function (considering the valve point effect).
+param TrueCostNV;
+let TrueCostNV := sum{i in 1..n}(a[i]*pNV[i]^2 + b[i]*pNV[i] + c[i] + 
+	d[i]*abs(sin(e[i]*(pNV[i]-p_min[i]))));
+
+display TrueCostNV;

@@ -1,0 +1,91 @@
+#=============================================================
+#AUTHOR: Benoit Sluysmans & Nicolas Stevens, UCL-EPL
+#DATE: 11/04/2015
+#=============================================================
+#MIQP for ELDP: General problem adapted for sin function
+
+reset;
+
+# Model
+model ELDP_bbox_sin.mod;
+
+# Options
+data eldp_s_no_loss_13b-BB.dat;
+option solver gurobi;
+
+# Algo parameters
+param eps, default 10^(-2);
+param maxIter := 50;
+
+param delta;
+param countIter, default 1;
+param max_m, default max{i in 1..n}(m[i]);
+
+param count;
+param find;
+param acc1;
+param acc2;
+
+# Iterations
+repeat {
+	for{i in 1..n} {
+		for{j in 1..m[i]} {
+				# alpha & beta
+				let alpha[i,j] := d[i]*(abs(sin(e[i]*(Xi[i,j+1]-p_min[i])))-abs(sin(e[i]*(Xi[i,j]-p_min[i]))))/(Xi[i,j+1]-Xi[i,j]);
+				let beta[i,j] := d[i]*abs(sin(e[i]*(Xi[i,j]-p_min[i])))-alpha[i,j]*Xi[i,j];
+		}
+	}
+	
+	# Solve
+	solve;
+	
+	display p;
+	
+	# delta
+	let delta := sum{i in 1..n}(a[i]*p[i]^2 + b[i]*p[i] + c[i] + d[i]*abs(sin(e[i]*(p[i]-p_min[i])))) - objectif;
+	display delta+objectif;
+	display delta;
+	
+	# Add breakpoints
+	for{i in 1..n} {
+		let count := 1;
+		let find := 0;
+		repeat {
+			# If breakpoint already inserted
+			if find = 1 then {
+				if count = m[i]+1 then {
+					let Xi[i,count] := acc2;
+				}
+				let acc1 := Xi[i,count];
+				let Xi[i,count] := acc2; 
+				let acc2 := acc1;
+			}
+			# If breakpoint already in the list (or near)
+			else if abs(p[i] - Xi[i,count])<=eps then {
+				let count := m[i]+1;
+			}
+			# Insert breakpoint
+			else if p[i] < Xi[i,count] then{
+				let acc2 := Xi[i,count];
+				let Xi[i,count] := p[i];
+				let m[i] := m[i] + 1;
+				let find :=1;
+			}
+			let count := count + 1;
+		} while count <= m[i]+1;
+	}
+	
+	let countIter := countIter+1;
+	let max_m := max{i in 1..n}(m[i]);
+	
+} while (delta > eps and countIter < maxIter and max_m < length);
+
+display objectif;
+display p;
+display countIter;
+
+# Time
+param total_time = _ampl_elapsed_time + _total_solve_elapsed_time;
+display total_time;
+
+
