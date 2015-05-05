@@ -172,8 +172,6 @@ if __name__ == '__main__':
 	model.a = Param(model.I)
 	model.b = Param(model.I)
 	model.c = Param(model.I)
-	#model.d = Param(model.I)
-	#model.e = Param(model.I)
 	model.p_min = Param(model.I)
 	model.p_max = Param(model.I)
 	model.D = Param(within=NonNegativeIntegers)

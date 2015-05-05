@@ -6,7 +6,7 @@ AUTHORS: Sluysmans Benoît & Stevens Nicolas
 Template for the input file of ELDP_bbox.py
 This example is a typical dataset in the litterature with 3 generation units
 
-Don't change the name of the variables, just change these data with yours.
+Do not change the name of the variables, just change these data with yours.
 """
 
 """
