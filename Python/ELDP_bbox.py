@@ -2,7 +2,7 @@
 """
 =============================================================
 AUTHOR: Benoit Sluysmans & Nicolas Stevens, UCL-EPL
-DATE: 20/04/2015
+DATE: 05/05/2015
 =============================================================
 MIQP for ELDP: general problem
 
